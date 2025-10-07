@@ -206,28 +206,3 @@ npm run dev
 curl http://localhost:3000/api/users
 ```
 
-## 🔒 Security Features
-
-- ✅ File type validation (hanya image files)
-- ✅ File size limits (max 5MB)
-- ✅ SQL injection protection (parameterized queries)
-- ✅ XSS protection (EJS auto-escaping)
-- ✅ CORS enabled
-- ✅ Error handling middleware
-
-## 📝 Environment Variables
-
-| Variable | Description | Default | Required |
-|----------|-------------|---------|----------|
-| `DATABASE_URL` | PostgreSQL connection string | - | ✅ |
-| `DB_HOST` | Database host | localhost | ✅ |
-| `DB_PORT` | Database port | 5432 | ✅ |
-| `DB_NAME` | Database name | - | ✅ |
-| `DB_USER` | Database username | - | ✅ |
-| `DB_PASSWORD` | Database password | - | ✅ |
-| `PORT` | Server port | 3000 | ❌ |
-| `NODE_ENV` | Environment | development | ❌ |
-| `STORAGE_PATH` | Upload directory | ./uploads | ❌ |
-| `MAX_FILE_SIZE` | Max upload size (bytes) | 5000000 | ❌ |
-| `SESSION_SECRET` | Session secret key | - | ✅ |
-
