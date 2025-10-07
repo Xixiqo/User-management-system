@@ -1,0 +1,223 @@
+<%- include('partials/header', { title: 'Add User - PTS PaaS' }) %>
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h4 class="card-title mb-0">
+                    <i class="bi bi-person-plus me-2"></i>
+                    Add New User
+                </h4>
+            </div>
+            <div class="card-body">
+                <!-- Error Alert -->
+                <% if (error) { %>
+                    <div class="alert alert-danger alert-dismissible fade show alert-custom" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        <%= error %>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                <% } %>
+
+                <!-- Add User Form -->
+                <form action="/users" method="POST" enctype="multipart/form-data" id="addUserForm">
+                    <!-- Name Field -->
+                    <div class="mb-3">
+                        <label for="name" class="form-label">
+                            <i class="bi bi-person me-1"></i>Full Name
+                        </label>
+                        <input type="text" 
+                               class="form-control" 
+                               id="name" 
+                               name="name" 
+                               placeholder="Enter full name"
+                               required>
+                        <div class="form-text">Please enter the user's full name</div>
+                    </div>
+
+                    <!-- Email Field -->
+                    <div class="mb-3">
+                        <label for="email" class="form-label">
+                            <i class="bi bi-envelope me-1"></i>Email Address
+                        </label>
+                        <input type="email" 
+                               class="form-control" 
+                               id="email" 
+                               name="email" 
+                               placeholder="Enter email address"
+                               required>
+                        <div class="form-text">Must be a valid email address</div>
+                    </div>
+
+                    <!-- Profile Image Upload -->
+                    <div class="mb-4">
+                        <label for="profileImage" class="form-label">
+                            <i class="bi bi-camera me-1"></i>Profile Image (Optional)
+                        </label>
+                        
+                        <div class="upload-area" id="uploadArea">
+                            <i class="bi bi-cloud-upload display-4 text-muted mb-3"></i>
+                            <h5 class="text-muted mb-2">Choose Profile Image</h5>
+                            <p class="text-muted mb-3">Drag and drop an image here, or click to select</p>
+                            <input type="file" 
+                                   class="form-control d-none" 
+                                   id="profileImage" 
+                                   name="profileImage" 
+                                   accept="image/*"
+                                   onchange="previewImage(this)">
+                            <button type="button" 
+                                    class="btn btn-outline-primary btn-custom"
+                                    onclick="document.getElementById('profileImage').click()">
+                                <i class="bi bi-folder2-open me-2"></i>
+                                Select Image
+                            </button>
+                        </div>
+
+                        <!-- Image Preview -->
+                        <div class="text-center mt-3">
+                            <img id="imagePreview" 
+                                 class="profile-image-large" 
+                                 style="display: none;" 
+                                 alt="Preview">
+                        </div>
+
+                        <div class="form-text">
+                            <i class="bi bi-info-circle me-1"></i>
+                            Supported formats: JPEG, JPG, PNG, GIF, WEBP (Max: 5MB)
+                        </div>
+                    </div>
+
+                    <!-- Submit Buttons -->
+                    <div class="d-flex justify-content-between">
+                        <a href="/" class="btn btn-outline-secondary btn-custom">
+                            <i class="bi bi-arrow-left me-2"></i>
+                            Back to List
+                        </a>
+                        <button type="submit" class="btn btn-primary btn-custom">
+                            <i class="bi bi-person-plus me-2"></i>
+                            Add User
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Instructions Card -->
+        <div class="card mt-4">
+            <div class="card-body">
+                <h6 class="card-title">
+                    <i class="bi bi-lightbulb text-warning me-2"></i>
+                    Tips
+                </h6>
+                <ul class="mb-0 small text-muted">
+                    <li>All users are stored in PostgreSQL database</li>
+                    <li>Profile images are saved in persistent storage</li>
+                    <li>Email addresses must be unique</li>
+                    <li>Images are automatically resized for optimal display</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Enhanced file upload functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const uploadArea = document.getElementById('uploadArea');
+    const fileInput = document.getElementById('profileImage');
+    
+    // Handle drag and drop
+    uploadArea.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        uploadArea.style.borderColor = '#0d6efd';
+        uploadArea.style.backgroundColor = '#f8f9fa';
+    });
+    
+    uploadArea.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        uploadArea.style.borderColor = '#dee2e6';
+        uploadArea.style.backgroundColor = 'transparent';
+    });
+    
+    uploadArea.addEventListener('drop', function(e) {
+        e.preventDefault();
+        uploadArea.style.borderColor = '#dee2e6';
+        uploadArea.style.backgroundColor = 'transparent';
+        
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            fileInput.files = files;
+            previewImage(fileInput);
+        }
+    });
+    
+    // Form validation
+    document.getElementById('addUserForm').addEventListener('submit', function(e) {
+        const name = document.getElementById('name').value.trim();
+        const email = document.getElementById('email').value.trim();
+        
+        if (!name) {
+            alert('Please enter a valid name');
+            e.preventDefault();
+            return false;
+        }
+        
+        if (!email) {
+            alert('Please enter a valid email address');
+            e.preventDefault();
+            return false;
+        }
+        
+        // Show loading state
+        const submitBtn = this.querySelector('button[type="submit"]');
+        submitBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Adding User...';
+        submitBtn.disabled = true;
+    });
+});
+
+// Enhanced image preview function
+function previewImage(input) {
+    if (input.files && input.files[0]) {
+        const file = input.files[0];
+        
+        // File size check (5MB)
+        if (file.size > 5000000) {
+            alert('File too large. Please select an image smaller than 5MB.');
+            input.value = '';
+            return;
+        }
+        
+        // File type check
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+        if (!allowedTypes.includes(file.type)) {
+            alert('Invalid file type. Please select a valid image file.');
+            input.value = '';
+            return;
+        }
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const preview = document.getElementById('imagePreview');
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+            
+            // Update upload area text
+            const uploadArea = document.getElementById('uploadArea');
+            uploadArea.innerHTML = `
+                <i class="bi bi-check-circle text-success display-4 mb-3"></i>
+                <h5 class="text-success mb-2">Image Selected</h5>
+                <p class="text-muted mb-3">${file.name} (${(file.size/1024/1024).toFixed(2)}MB)</p>
+                <button type="button" 
+                        class="btn btn-outline-primary btn-custom"
+                        onclick="document.getElementById('profileImage').click()">
+                    <i class="bi bi-arrow-repeat me-2"></i>
+                    Change Image
+                </button>
+            `;
+        };
+        reader.readAsDataURL(file);
+    }
+}
+</script>
+
+<%- include('partials/footer') %>

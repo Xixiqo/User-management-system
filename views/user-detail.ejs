@@ -1,0 +1,209 @@
+<%- include('partials/header', { title: 'User Detail - PTS PaaS' }) %>
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow">
+            <div class="card-header bg-info text-white">
+                <h4 class="card-title mb-0">
+                    <i class="bi bi-person-lines-fill me-2"></i>
+                    User Details
+                </h4>
+            </div>
+            <div class="card-body">
+                <!-- User Profile Section -->
+                <div class="text-center mb-4">
+                    <% if (user.profile_image) { %>
+                        <img src="/uploads/<%= user.profile_image %>" 
+                             alt="<%= user.name %>" 
+                             class="profile-image-large border mb-3"
+                             onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgdmlld0JveD0iMCAwIDEyMCAxMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxjaXJjbGUgY3g9IjYwIiBjeT0iNjAiIHI9IjYwIiBmaWxsPSIjRTlFQ0VGIi8+Cjxwb2x5Z29uIHBvaW50cz0iNjAsMzAgNzUsMjAgMTA1LDUwIDc1LDgwIDQ1LDgwIDE1LDUwIDQ1LDIwIiBmaWxsPSIjNkM3NTdEIi8+Cjwvc3ZnPgo='; this.onerror=null;">
+                    <% } else { %>
+                        <div class="profile-image-large mb-3 d-flex align-items-center justify-content-center bg-light border">
+                            <i class="bi bi-person-circle text-muted" style="font-size: 4rem;"></i>
+                        </div>
+                    <% } %>
+                    <h2 class="mb-2"><%= user.name %></h2>
+                    <p class="text-muted mb-3">
+                        <i class="bi bi-envelope me-1"></i>
+                        <%= user.email %>
+                    </p>
+                </div>
+
+                <!-- User Information -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h5 class="mb-3">
+                            <i class="bi bi-info-circle text-primary me-2"></i>
+                            User Information
+                        </h5>
+                        <div class="table-responsive">
+                            <table class="table table-borderless">
+                                <tbody>
+                                    <tr>
+                                        <td class="fw-bold" style="width: 30%;">
+                                            <i class="bi bi-hash text-muted me-1"></i>
+                                            User ID:
+                                        </td>
+                                        <td><span class="badge bg-secondary"><%= user.id %></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold">
+                                            <i class="bi bi-person text-muted me-1"></i>
+                                            Full Name:
+                                        </td>
+                                        <td><%= user.name %></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold">
+                                            <i class="bi bi-envelope text-muted me-1"></i>
+                                            Email Address:
+                                        </td>
+                                        <td><%= user.email %></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold">
+                                            <i class="bi bi-calendar-plus text-muted me-1"></i>
+                                            Created:
+                                        </td>
+                                        <td>
+                                            <%= new Date(user.created_at).toLocaleDateString('id-ID', {
+                                                year: 'numeric',
+                                                month: 'long',
+                                                day: 'numeric',
+                                                hour: '2-digit',
+                                                minute: '2-digit'
+                                            }) %>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold">
+                                            <i class="bi bi-clock-history text-muted me-1"></i>
+                                            Last Updated:
+                                        </td>
+                                        <td>
+                                            <%= new Date(user.updated_at).toLocaleDateString('id-ID', {
+                                                year: 'numeric',
+                                                month: 'long',
+                                                day: 'numeric',
+                                                hour: '2-digit',
+                                                minute: '2-digit'
+                                            }) %>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="fw-bold">
+                                            <i class="bi bi-image text-muted me-1"></i>
+                                            Profile Image:
+                                        </td>
+                                        <td>
+                                            <% if (user.profile_image) { %>
+                                                <span class="badge bg-success">
+                                                    <i class="bi bi-check-circle me-1"></i>
+                                                    Has Image
+                                                </span>
+                                                <small class="text-muted ms-2"><%= user.profile_image %></small>
+                                            <% } else { %>
+                                                <span class="badge bg-secondary">
+                                                    <i class="bi bi-x-circle me-1"></i>
+                                                    No Image
+                                                </span>
+                                            <% } %>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="d-flex justify-content-between align-items-center">
+                    <a href="/" class="btn btn-outline-secondary btn-custom">
+                        <i class="bi bi-arrow-left me-2"></i>
+                        Back to List
+                    </a>
+                    <div class="btn-group" role="group">
+                        <a href="/users/<%= user.id %>/edit" class="btn btn-warning btn-custom">
+                            <i class="bi bi-pencil-square me-2"></i>
+                            Edit User
+                        </a>
+                        <button class="btn btn-outline-danger btn-custom" 
+                                onclick="deleteUser('<%= user.id %>', '<%= user.name %>')">
+                            <i class="bi bi-trash me-2"></i>
+                            Delete
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional Info Card -->
+        <div class="card mt-4">
+            <div class="card-body">
+                <h6 class="card-title">
+                    <i class="bi bi-lightbulb text-warning me-2"></i>
+                    Quick Info
+                </h6>
+                <ul class="mb-0 small text-muted">
+                    <li>This user has been registered for <%= Math.floor((new Date() - new Date(user.created_at)) / (1000 * 60 * 60 * 24)) %> days</li>
+                    <li>Last profile update was on <%= new Date(user.updated_at).toLocaleDateString() %></li>
+                    <li>User data is stored securely in PostgreSQL database</li>
+                    <% if (user.profile_image) { %>
+                        <li>Profile image is stored in the uploads directory</li>
+                    <% } %>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete <strong id="deleteUserName"></strong>?</p>
+                <p class="text-muted mb-0">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete">Delete User</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let deleteUserId = null;
+
+function deleteUser(id, name) {
+    deleteUserId = id;
+    document.getElementById('deleteUserName').textContent = name;
+    new bootstrap.Modal(document.getElementById('deleteModal')).show();
+}
+
+document.getElementById('confirmDelete').addEventListener('click', function() {
+    if (deleteUserId) {
+        fetch(`/api/users/${deleteUserId}`, {
+            method: 'DELETE'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message) {
+                window.location.href = '/?success=User deleted successfully';
+            } else {
+                alert('Error deleting user');
+            }
+        })
+        .catch(error => {
+            alert('Error deleting user');
+            console.error('Error:', error);
+        });
+    }
+});
+</script>
+
+<%- include('partials/footer') %>

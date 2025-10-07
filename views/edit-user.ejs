@@ -1,0 +1,290 @@
+<%- include('partials/header', { title: 'Edit User - PTS PaaS' }) %>
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow">
+            <div class="card-header bg-warning text-dark">
+                <h4 class="card-title mb-0">
+                    <i class="bi bi-pencil-square me-2"></i>
+                    Edit User
+                </h4>
+            </div>
+            <div class="card-body">
+                <!-- Error Alert -->
+                <% if (error) { %>
+                    <div class="alert alert-danger alert-dismissible fade show alert-custom" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        <%= error %>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                <% } %>
+
+                <!-- Current User Info -->
+                <% if (user) { %>
+                    <div class="alert alert-info alert-custom mb-4">
+                        <div class="d-flex align-items-center">
+                            <% if (user.profile_image) { %>
+                                <img src="/uploads/<%= user.profile_image %>" 
+                                     alt="<%= user.name %>" 
+                                     class="profile-image me-3"
+                                     onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iNDAiIGN5PSI0MCIgcj0iNDAiIGZpbGw9IiNFOUVDRUYiLz4KPHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDEyQzE0LjIwOTEgMTIgMTYgMTAuMjA5MSAxNiA4QzE2IDUuNzkwODYgMTQuMjA5MSA0IDEyIDRDOS43OTA4NiA0IDggNS43OTA4NiA4IDhDOCAxMC4yMDkxIDkuNzkwODYgMTIgMTIgMTJaIiBmaWxsPSIjNkM3NTdEIi8+CjxwYXRoIGQ9Ik0xMiAxNEM4LjEzNDAxIDE0IDUgMTcuMTM0IDUgMjFIMTlDMTkgMTcuMTM0IDE1Ljg2NiAxNCAxMiAxNFoiIGZpbGw9IiM2Qzc1N0QiLz4KPC9zdmc+Cjwvc3ZnPgo='; this.onerror=null;">
+                            <% } else { %>
+                                <div class="profile-image me-3 d-flex align-items-center justify-content-center bg-light border">
+                                    <i class="bi bi-person-circle text-muted" style="font-size: 2rem;"></i>
+                                </div>
+                            <% } %>
+                            <div>
+                                <h6 class="mb-1">Currently Editing:</h6>
+                                <strong><%= user.name %></strong> - <%= user.email %><br>
+                                <small class="text-muted">
+                                    ID: <%= user.id %> | 
+                                    Created: <%= new Date(user.created_at).toLocaleDateString() %>
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Edit User Form -->
+                    <form action="/users/<%= user.id %>?_method=PUT" method="POST" enctype="multipart/form-data" id="editUserForm">
+                        <!-- Name Field -->
+                        <div class="mb-3">
+                            <label for="name" class="form-label">
+                                <i class="bi bi-person me-1"></i>Full Name
+                            </label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="name" 
+                                   name="name" 
+                                   value="<%= user.name %>"
+                                   placeholder="Enter full name"
+                                   required>
+                            <div class="form-text">Update the user's full name</div>
+                        </div>
+
+                        <!-- Email Field -->
+                        <div class="mb-3">
+                            <label for="email" class="form-label">
+                                <i class="bi bi-envelope me-1"></i>Email Address
+                            </label>
+                            <input type="email" 
+                                   class="form-control" 
+                                   id="email" 
+                                   name="email" 
+                                   value="<%= user.email %>"
+                                   placeholder="Enter email address"
+                                   required>
+                            <div class="form-text">Must be a valid and unique email address</div>
+                        </div>
+
+                        <!-- Current Profile Image -->
+                        <% if (user.profile_image) { %>
+                            <div class="mb-3">
+                                <label class="form-label">Current Profile Image</label>
+                                <div class="text-center">
+                                    <img src="/uploads/<%= user.profile_image %>" 
+                                         alt="Current profile" 
+                                         class="profile-image-large border"
+                                         id="currentImage">
+                                    <div class="mt-2">
+                                        <button type="button" 
+                                                class="btn btn-sm btn-outline-danger"
+                                                onclick="removeCurrentImage()">
+                                            <i class="bi bi-trash me-1"></i>Remove Image
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        <% } %>
+
+                        <!-- Profile Image Upload -->
+                        <div class="mb-4">
+                            <label for="profileImage" class="form-label">
+                                <i class="bi bi-camera me-1"></i>Update Profile Image (Optional)
+                            </label>
+                            
+                            <div class="upload-area" id="uploadArea">
+                                <i class="bi bi-cloud-upload display-4 text-muted mb-3"></i>
+                                <h5 class="text-muted mb-2">Choose New Profile Image</h5>
+                                <p class="text-muted mb-3">Drag and drop an image here, or click to select</p>
+                                <input type="file" 
+                                       class="form-control d-none" 
+                                       id="profileImage" 
+                                       name="profileImage" 
+                                       accept="image/*"
+                                       onchange="previewImage(this)">
+                                <button type="button" 
+                                        class="btn btn-outline-primary btn-custom"
+                                        onclick="document.getElementById('profileImage').click()">
+                                    <i class="bi bi-folder2-open me-2"></i>
+                                    Select New Image
+                                </button>
+                            </div>
+
+                            <!-- New Image Preview -->
+                            <div class="text-center mt-3">
+                                <img id="imagePreview" 
+                                     class="profile-image-large" 
+                                     style="display: none;" 
+                                     alt="New preview">
+                            </div>
+
+                            <div class="form-text">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Leave empty to keep current image. Supported: JPEG, JPG, PNG, GIF, WEBP (Max: 5MB)
+                            </div>
+                        </div>
+
+                        <!-- Hidden field untuk remove image -->
+                        <input type="hidden" id="removeImage" name="removeImage" value="false">
+
+                        <!-- Submit Buttons -->
+                        <div class="d-flex justify-content-between">
+                            <a href="/" class="btn btn-outline-secondary btn-custom">
+                                <i class="bi bi-arrow-left me-2"></i>
+                                Cancel
+                            </a>
+                            <button type="submit" class="btn btn-warning btn-custom">
+                                <i class="bi bi-check-circle me-2"></i>
+                                Update User
+                            </button>
+                        </div>
+                    </form>
+                <% } else { %>
+                    <div class="alert alert-danger">
+                        <h5>User Not Found</h5>
+                        <p>The user you're trying to edit doesn't exist.</p>
+                        <a href="/" class="btn btn-primary">Back to Home</a>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+
+        <!-- Help Card -->
+        <div class="card mt-4">
+            <div class="card-body">
+                <h6 class="card-title">
+                    <i class="bi bi-lightbulb text-warning me-2"></i>
+                    Edit Tips
+                </h6>
+                <ul class="mb-0 small text-muted">
+                    <li>All changes are saved to the PostgreSQL database</li>
+                    <li>Email addresses must be unique across all users</li>
+                    <li>Upload a new image to replace the current one</li>
+                    <li>Click "Remove Image" to delete the current profile photo</li>
+                    <li>Leave image field empty to keep the current image</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Enhanced file upload functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const uploadArea = document.getElementById('uploadArea');
+    const fileInput = document.getElementById('profileImage');
+    
+    // Handle drag and drop
+    uploadArea.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        uploadArea.style.borderColor = '#0d6efd';
+        uploadArea.style.backgroundColor = '#f8f9fa';
+    });
+    
+    uploadArea.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        uploadArea.style.borderColor = '#dee2e6';
+        uploadArea.style.backgroundColor = 'transparent';
+    });
+    
+    uploadArea.addEventListener('drop', function(e) {
+        e.preventDefault();
+        uploadArea.style.borderColor = '#dee2e6';
+        uploadArea.style.backgroundColor = 'transparent';
+        
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            fileInput.files = files;
+            previewImage(fileInput);
+        }
+    });
+    
+    // Form validation
+    document.getElementById('editUserForm').addEventListener('submit', function(e) {
+        const name = document.getElementById('name').value.trim();
+        const email = document.getElementById('email').value.trim();
+        
+        if (!name) {
+            alert('Please enter a valid name');
+            e.preventDefault();
+            return false;
+        }
+        
+        if (!email) {
+            alert('Please enter a valid email address');
+            e.preventDefault();
+            return false;
+        }
+        
+        // Show loading state
+        const submitBtn = this.querySelector('button[type="submit"]');
+        submitBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Updating User...';
+        submitBtn.disabled = true;
+    });
+});
+
+// Enhanced image preview function
+function previewImage(input) {
+    if (input.files && input.files[0]) {
+        const file = input.files[0];
+        
+        // File size check (5MB)
+        if (file.size > 5000000) {
+            alert('File too large. Please select an image smaller than 5MB.');
+            input.value = '';
+            return;
+        }
+        
+        // File type check
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+        if (!allowedTypes.includes(file.type)) {
+            alert('Invalid file type. Please select a valid image file.');
+            input.value = '';
+            return;
+        }
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const preview = document.getElementById('imagePreview');
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+            
+            // Update upload area text
+            const uploadArea = document.getElementById('uploadArea');
+            uploadArea.innerHTML = `
+                <i class="bi bi-check-circle text-success display-4 mb-3"></i>
+                <h5 class="text-success mb-2">New Image Selected</h5>
+                <p class="text-muted mb-3">${file.name} (${(file.size/1024/1024).toFixed(2)}MB)</p>
+                <button type="button" 
+                        class="btn btn-outline-primary btn-custom"
+                        onclick="document.getElementById('profileImage').click()">
+                    <i class="bi bi-arrow-repeat me-2"></i>
+                    Change Image
+                </button>
+            `;
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+// Remove current image function
+function removeCurrentImage() {
+    if (confirm('Are you sure you want to remove the current profile image?')) {
+        document.getElementById('removeImage').value = 'true';
+        document.getElementById('currentImage').style.opacity = '0.3';
+        document.getElementById('currentImage').parentElement.innerHTML += 
+            '<div class="mt-2 text-danger"><i class="bi bi-exclamation-triangle me-1"></i>Image will be removed when you save changes</div>';
+    }
+}
+</script>
+
+<%- include('partials/footer') %>
